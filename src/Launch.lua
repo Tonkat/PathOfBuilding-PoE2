@@ -16,6 +16,15 @@ launch = { }
 SetMainObject(launch)
 
 function launch:OnInit()
+	
+	-- This is the path to emmy_core.dll. The ?.dll at the end is intentional.
+package.cpath = package.cpath .. ";C:/Users/mtssk/.vscode/extensions/tangzx.emmylua-0.9.18-win32-x64/debugger/emmy/windows/x64/?.dll"
+local dbg = require("emmy_core")
+-- This port must match the IDE configuration. Default is 9966.
+dbg.tcpListen("localhost", 9966)
+-- Uncomment the next line if you want Path of Building to block until the debugger is attached
+--dbg.waitIDE()
+
 	self.devMode = false
 	self.installedMode = false
 	self.versionNumber = "?"
@@ -82,6 +91,9 @@ function launch:OnInit()
 		-- Run a background update check if developer mode is off
 		self:CheckForUpdate(true)
 	end
+
+	-- Initialize the RPC server
+	self.rpcServer = require("LaunchRPCServer")
 end
 
 function launch:CanExit()
@@ -112,6 +124,12 @@ function launch:OnFrame()
 			end
 		end
 	end
+
+	-- RPC server tick
+	if self.rpcServer then
+		self.rpcServer.Tick()
+	end
+
 	self.devModeAlt = self.devMode and IsKeyDown("ALT")
 	SetDrawLayer(1000)
 	SetViewport()
