@@ -81,13 +81,41 @@ local function rpcLoop()
     local qs = path:match("%?(.*)$") or ""
     local params = parseQuery(qs)
     local itemText = params.item or ""
-    local item = new("Item", itemText)
-    local tooltip = new("Tooltip")
+    
+    -- Add checks around 'new' if it can fail
+    local item = new and new("Item", itemText)
+    if not item then
+         client:send("HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nInvalid item data provided.\r\n")
+         client:close()
+         return
+    end
 
-    -- Reuse the tooltip method from the itemsTab to get the results.
-    build.itemsTab:AddItemTooltip(tooltip, item)
+    local tooltip = new and new("Tooltip")
+    local success, err_or_result = pcall(build.itemsTab.AddItemTooltip, build.itemsTab, tooltip, item)
 
+    if not success then
+        -- An error occurred inside build.itemsTab:AddItemTooltip
+        print("Error calling AddItemTooltip:", err_or_result) -- Log the actual error on the server side
+
+        -- Send 500 Internal Server Error response
+        client:send("HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nA server error occurred while processing the item.\r\n")
+        client:close()
+        return -- Stop processing this request
+    end
+    -- *** END: Add pcall specifically around the AddItemTooltip call ***
+
+
+    -- If AddItemTooltip was successful, continue processing
     local output_structure = convert_formatted_text(tooltip.lines)
+
+    -- Add check around dkjson.encode
+    local jsonOut_success, jsonOut = pcall(dkjson.encode, output_structure, {indent = true})
+    if not jsonOut_success then
+         print("Error encoding JSON response:", jsonOut) -- Log the error
+         client:send("HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nFailed to format response data.\r\n")
+         client:close()
+         return
+    end
 
     local jsonOut = dkjson.encode(output_structure, {indent = true})
     client:send(table.concat{
