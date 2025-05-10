@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.8.1](https://github.com/PathOfBuildingCommunity/PathOfBuilding/tree/v0.8.1) (2025/05/10)
+
+[Full Changelog](https://github.com/Tonkat/PathOfBuilding-PoE2/commits/v0.8.1)
+
+
+
+
 ## [v0.8.0](https://github.com/PathOfBuildingCommunity/PathOfBuilding/tree/v0.8.0) (2025/04/16)
 
 [Full Changelog](https://github.com/PathOfBuildingCommunity/PathOfBuilding-PoE2/compare/v0.7.1...v0.8.0)
