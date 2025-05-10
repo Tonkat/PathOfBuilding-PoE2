@@ -35,10 +35,10 @@ RUN luarocks install busted 2.2.0-1;\
 	luarocks install luautf8 0.1.6-1;\
 	luarocks install luasocket
 
-# Copy LuaSocket to runtime directory
-RUN mkdir -p /runtime/lua/socket
-RUN cp -r /usr/local/share/lua/5.1/socket/* /runtime/lua/socket/
-RUN cp -r /usr/local/lib/lua/5.1/socket/* /runtime/lua/socket/
+# Copy LuaSocket to the correct location relative to source directory
+RUN mkdir -p /src/runtime/lua/socket
+RUN cp -r /usr/local/share/lua/5.1/socket/* /src/runtime/lua/socket/
+RUN cp -r /usr/local/lib/lua/5.1/socket/* /src/runtime/lua/socket/
 
 RUN --mount=type=cache,from=emmyluadebugger,source=/opt,target=/opt make -C /opt/EmmyLuaDebugger/build/ install
 RUN --mount=type=cache,from=luajit,source=/opt,target=/opt make -C /opt/LuaJIT/ install
