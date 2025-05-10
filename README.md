@@ -1,4 +1,7 @@
-# Path of Building 2 Community
+# Path of Building 2 Community Fork!
+## Fork? What fork?
+This is a custom version of Path of Building 2 Community. The main modifications are to set up a local server to support other integrations like custom overlays or chrome extensions.
+
 ## Welcome to Path of Building 2, an offline build planner for Path of Exile 2!
 
 <p float="middle">
