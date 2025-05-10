@@ -38,13 +38,6 @@ local applyRangeTests = {
 	[{ "+(-25-50)% to Fire Resistance", 0.0, 1.5 }] = "-37% to Fire Resistance",
 }
 
-describe("Environment check", function()
-	it("should print package.cpath", function()
-		print("Busted's package.cpath:", package.cpath)
-		assert(true) -- Simple assertion so the test passes
-	end)
-end)
-
 describe("TestItemTools", function()
 	for args, expected in pairs(applyRangeTests) do
 		it(string.format("tests applyRange('%s', %.2f, %.2f)", unpack(args)), function()
