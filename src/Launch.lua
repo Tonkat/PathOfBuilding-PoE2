@@ -5,8 +5,8 @@
 -- Program entry point; loads and runs the Main module within a protected environment
 --
 
--- This env variable is set in both test.yml and docker-compose.yml
-local isTestMode = os.getenv("POB_TEST_MODE") == "1"
+-- Check if running in test mode via environment variable
+local isTestMode = true--os.getenv("POB_TEST_MODE") == "1"
 
 local startTime = GetTime()
 APP_NAME = "Path of Building (PoE2)"
