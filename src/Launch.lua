@@ -6,7 +6,7 @@
 --
 
 -- Check if running in test mode via environment variable
-local isTestMode = os.getenv("POB_TEST_MODE") == "1"
+local isTestMode = os.getenv("POB_TEST_MODE") == 1
 
 local startTime = GetTime()
 APP_NAME = "Path of Building (PoE2)"
