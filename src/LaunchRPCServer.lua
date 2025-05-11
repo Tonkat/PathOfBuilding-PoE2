@@ -125,8 +125,8 @@ local function rpcLoop()
     local itemText = params.item or ""
     
     -- Add checks around 'new' if it can fail
-    local item = new and new("Item", itemText)
-    if not item then
+    local success, item = pcall(function() return new and new("Item", itemText) end)
+    if not success or not item then
          client:send("HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nInvalid item data provided.\r\n")
          client:close()
          return
