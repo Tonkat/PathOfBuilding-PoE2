@@ -4,7 +4,7 @@ services:
     image: ghcr.io/pathofbuildingcommunity/pathofbuilding-tests:latest
     environment:
       HOME: /tmp
-      POB_TEST_MODE: "1"
+      POB_TEST_MODE: 1
     container_name: pathofbuilding-tests
     command: busted --lua=luajit
     security_opt:
