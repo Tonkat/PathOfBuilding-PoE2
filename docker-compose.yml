@@ -11,6 +11,6 @@ services:
       - no-new-privileges:true
     ports:
       - "9966:9966"
+    working_dir: /workdir
     volumes:
-      - ./:/src:ro
-    working_dir: /src
+      - ./:/workdir:ro
