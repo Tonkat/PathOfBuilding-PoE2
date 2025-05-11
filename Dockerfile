@@ -39,6 +39,11 @@ RUN luarocks install busted 2.2.0-1;\
 RUN mkdir -p /src/runtime/lua/socket
 RUN cp -r /usr/local/share/lua/5.1/socket/* /src/runtime/lua/socket/
 RUN cp -r /usr/local/lib/lua/5.1/socket/* /src/runtime/lua/socket/
+RUN cp -r /usr/local/lib/lua/5.1/socket/*.so /src/runtime/lua/socket/csrc/
+
+# Set up LuaJIT paths
+ENV LUA_PATH=/src/runtime/lua/?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua
+ENV LUA_CPATH=/src/runtime/lua/?.so;/usr/local/lib/lua/5.1/?.so
 
 RUN --mount=type=cache,from=emmyluadebugger,source=/opt,target=/opt make -C /opt/EmmyLuaDebugger/build/ install
 RUN --mount=type=cache,from=luajit,source=/opt,target=/opt make -C /opt/LuaJIT/ install
