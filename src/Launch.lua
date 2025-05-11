@@ -84,7 +84,7 @@ function launch:OnInit()
 	end
 
 	-- Initialize the RPC server
-	self.rpcServer = require("LaunchRPCServer")
+	-- self.rpcServer = require("LaunchRPCServer")
 end
 
 function launch:CanExit()
@@ -117,9 +117,9 @@ function launch:OnFrame()
 	end
 
 	-- RPC server tick
-	if self.rpcServer then
-		self.rpcServer.Tick()
-	end
+	-- if self.rpcServer then
+	-- 	self.rpcServer.Tick()
+	-- end
 
 	self.devModeAlt = self.devMode and IsKeyDown("ALT")
 	SetDrawLayer(1000)
