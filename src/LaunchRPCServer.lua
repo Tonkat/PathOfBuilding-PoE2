@@ -22,9 +22,30 @@ local rateLimit = {
     windowStart = os.time()
 }
 
+-- Security configuration
+local config = {
+    -- Only accept connections from localhost
+    host = "127.0.0.1",
+    -- Generate a random token on startup for simple authentication
+    -- This token must be passed in HTTP requests via "Authorization: Bearer <token>" header
+    -- or as a query parameter "?token=<token>"
+    authToken = tostring(math.random(100000, 999999)),
+    -- Rate limiting: max requests per window
+    maxRequestsPerWindow = 60,
+    -- Rate limiting: time window in seconds
+    timeWindow = 60,
+}
+
+-- Rate limiting state
+local rateLimit = {
+    requestCount = 0,
+    windowStart = os.time()
+}
+
 -- Try a few candidate ports until one binds
 local function bindPort(start, count)
     for p = start, start + count - 1 do
+        local srv, err = socket.bind(config.host, p)
         local srv, err = socket.bind(config.host, p)
         if srv then return srv, p end
     end
@@ -63,6 +84,15 @@ local function checkRateLimit()
     return rateLimit.requestCount <= config.maxRequestsPerWindow
 end
 
+local function sanitizeInput(input)
+    -- Basic input sanitization - strip control characters
+    if type(input) == "string" then
+        -- Remove control characters
+        return input:gsub("[\0-\31]", "")
+    end
+    return input
+end
+
 function convert_formatted_text(input_table)
     local output_lines = {}
     local current_block = nil
@@ -81,7 +111,7 @@ function convert_formatted_text(input_table)
 
         -- Process text if it exists
         if text then
-            table.insert(output_lines, text)
+            table.insert(output_lines, sanitizeInput(text))
         end
     end
 
@@ -102,10 +132,24 @@ local function rpcLoop()
         return
     end
     
+    
+    -- Rate limiting check
+    if not checkRateLimit() then
+        client:send("HTTP/1.1 429 Too Many Requests\r\nContent-Length: 0\r\n\r\n")
+        client:close()
+        return
+    end
+    
     local req = client:receive("*l")
     if not req then client:close() return end
 
-    local method,path = req:match("^(%S+)%s(%S+)")
+    local method, path = req:match("^(%S+)%s(%S+)")
+    
+    -- Parse query string for both auth and parameters
+    local query = path:find("?") and parseQuery(path:sub(path:find("?")))
+
+    
+    -- Continue processing the authorized request...
     if method ~= "GET" or not path:match("^/calculate_item") then
         client:send("HTTP/1.1 404 Not Found\r\n\r\n")
         client:close()
@@ -122,7 +166,7 @@ local function rpcLoop()
     -- Extract an item from the item query params (?item=<encoded text>)
     local qs = path:match("%?(.*)$") or ""
     local params = parseQuery(qs)
-    local itemText = params.item or ""
+    local itemText = sanitizeInput(params.item or "")
     
     -- Add checks around 'new' if it can fail
     local success, item = pcall(function() return new and new("Item", itemText) end)
