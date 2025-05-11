@@ -4,8 +4,13 @@
 -- Module: Launch
 -- Program entry point; loads and runs the Main module within a protected environment
 --
+local env_pob_test_mode_raw = os.getenv("POB_TEST_MODE")
 
-local isTestMode = os.getenv("POB_TEST_MODE") == "1"
+print("--- Debugging POB_TEST_MODE ---")
+print("Raw POB_TEST_MODE from os.getenv:", tostring(env_pob_test_mode_raw))
+local isTestMode = env_pob_test_mode_raw == "1"
+print("isTestMode calculated value:", tostring(isTestMode))
+print("-------------------------------")
 
 local startTime = GetTime()
 APP_NAME = "Path of Building (PoE2)"
