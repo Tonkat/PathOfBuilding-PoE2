@@ -63,15 +63,6 @@ local function checkRateLimit()
     return rateLimit.requestCount <= config.maxRequestsPerWindow
 end
 
-local function sanitizeInput(input)
-    -- Basic input sanitization - strip control characters
-    if type(input) == "string" then
-        -- Remove control characters
-        return input:gsub("[\0-\31]", "")
-    end
-    return input
-end
-
 function convert_formatted_text(input_table)
     local output_lines = {}
     local current_block = nil
@@ -90,7 +81,7 @@ function convert_formatted_text(input_table)
 
         -- Process text if it exists
         if text then
-            table.insert(output_lines, sanitizeInput(text))
+            table.insert(output_lines, text)
         end
     end
 
@@ -114,13 +105,7 @@ local function rpcLoop()
     local req = client:receive("*l")
     if not req then client:close() return end
 
-    local method, path = req:match("^(%S+)%s(%S+)")
-    
-    -- Parse query string for both auth and parameters
-    local query = path:find("?") and parseQuery(path:sub(path:find("?")))
-
-    
-    -- Continue processing the authorized request...
+    local method,path = req:match("^(%S+)%s(%S+)")
     if method ~= "GET" or not path:match("^/calculate_item") then
         client:send("HTTP/1.1 404 Not Found\r\n\r\n")
         client:close()
@@ -137,7 +122,7 @@ local function rpcLoop()
     -- Extract an item from the item query params (?item=<encoded text>)
     local qs = path:match("%?(.*)$") or ""
     local params = parseQuery(qs)
-    local itemText = sanitizeInput(params.item or "")
+    local itemText = params.item or ""
     
     -- Add checks around 'new' if it can fail
     local item = new and new("Item", itemText)
@@ -159,8 +144,6 @@ local function rpcLoop()
         client:close()
         return -- Stop processing this request
     end
-    -- *** END: Add pcall specifically around the AddItemTooltip call ***
-
 
     -- If AddItemTooltip was successful, continue processing
     local output_structure = convert_formatted_text(tooltip.lines)
