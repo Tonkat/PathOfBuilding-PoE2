@@ -5,6 +5,9 @@
 -- Program entry point; loads and runs the Main module within a protected environment
 --
 
+-- Check if running in test mode via environment variable
+local isTestMode = os.getenv("POB_TEST_MODE") == "1"
+
 local startTime = GetTime()
 APP_NAME = "Path of Building (PoE2)"
 
@@ -84,7 +87,9 @@ function launch:OnInit()
 	end
 
 	-- Initialize the RPC server
-	-- self.rpcServer = require("LaunchRPCServer")
+	if not isTestMode then
+		self.rpcServer = require("LaunchRPCServer")
+	end
 end
 
 function launch:CanExit()
@@ -117,9 +122,9 @@ function launch:OnFrame()
 	end
 
 	-- RPC server tick
-	-- if self.rpcServer then
-	-- 	self.rpcServer.Tick()
-	-- end
+	if not isTestMode and self.rpcServer then
+		self.rpcServer.Tick()
+	end
 
 	self.devModeAlt = self.devMode and IsKeyDown("ALT")
 	SetDrawLayer(1000)
